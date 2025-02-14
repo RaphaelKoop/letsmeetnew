@@ -1,0 +1,28 @@
+volumes:
+  lf8_lets_meet_postgres_data:
+    driver: local
+  lf8_lets_meet_mongodb_data:
+    driver: local
+
+services:
+  postgres_for_lf8_starter:
+    container_name: lf8_lets_meet_postgres_container
+    image: postgres:16.4
+    volumes:
+      - lf8_lets_meet_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: lf8_lets_meet_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+
+  mongodb_for_lf8:
+    container_name: lf8_lets_meet_mongodb_container
+    image: berndheidemann/letsmeet-mongodb:latest
+    volumes:
+      - lf8_lets_meet_mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: LetsMeet
