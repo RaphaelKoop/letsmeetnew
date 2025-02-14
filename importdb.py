@@ -118,7 +118,10 @@ def import_from_mongo(cursor, conn):
             if not email:
                 continue
 
-            first_name, last_name = split_name(email)
+            # Namen aus Mongo extrahieren
+            name_mongo = doc.get("name", "")
+            first_name, last_name = split_name(name_mongo, email)
+
             user_id = get_or_create_user(cursor, first_name, last_name, email)
 
             if not user_id:
@@ -201,20 +204,26 @@ def split_name_simple(name_str):
     return (parts[1].strip(), parts[0].strip()) if len(parts) == 2 else ("", name_str.strip())
 
 
+def split_name(name_str, email):
+    """ Falls kein Name vorhanden ist, wird er aus der E-Mail-Adresse extrahiert """
+    if name_str and "," in name_str:
+        return split_name_simple(name_str)
+
+    if "@" in email:
+        local_part = email.split("@")[0]
+        parts = local_part.split(".")
+        return (parts[0].capitalize(), parts[1].capitalize()) if len(parts) > 1 else ("", local_part.capitalize())
+
+    return ("", "")
+
+
 def parse_address(addr_str):
-    """ Parst 'Straße Nr, PLZ Ort' in einzelne Komponenten """
-    parts = addr_str.split(",")
+    """ Zerlegt eine Adresse 'Straße Nr, PLZ Ort' in einzelne Felder """
+    parts = [p.strip() for p in addr_str.split(",")]
     if len(parts) >= 3:
-        return parts[0].strip(), None, parts[1].strip(), parts[2].strip()
+        street, house_no = parts[0].rsplit(" ", 1)
+        return street, house_no, parts[1], parts[2]
     return None, None, None, None
-
-
-def parse_date_ddmmYYYY(date_str):
-    """ Wandelt '07.03.1959' in ein Date-Objekt um """
-    try:
-        return datetime.strptime(date_str.strip(), "%d.%m.%Y").date()
-    except:
-        return None
 
 
 if __name__ == "__main__":
