@@ -5,11 +5,11 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 from pymongo import MongoClient
 
-# Dateien
+# 📂 Dateien
 EXCEL_FILE = "Lets Meet DB Dump.xlsx"
 XML_FILE   = "Lets_Meet_Hobbies.xml"
 
-# Verbindungsdaten
+# 🔌 Verbindungsdaten
 MONGO_URI = "mongodb://localhost:27017"
 MONGO_DB = "LetsMeet"
 MONGO_COLLECTION = "users"
@@ -18,7 +18,7 @@ POSTGRES_HOST = "localhost"
 POSTGRES_DB   = "lf8_lets_meet_db"
 POSTGRES_USER = "user"
 POSTGRES_PWD  = "secret"
-POSTGRES_PORT = 5433  # Falls dein Compose-Setup diesen Port nutzt
+POSTGRES_PORT = 5433  # Falls dein Docker Compose Port 5433 ist
 
 
 def main():
@@ -224,6 +224,14 @@ def parse_address(addr_str):
         street, house_no = parts[0].rsplit(" ", 1)
         return street, house_no, parts[1], parts[2]
     return None, None, None, None
+
+
+def parse_date_ddmmYYYY(date_str):
+    """ Wandelt '07.03.1959' in ein Datumsobjekt um """
+    try:
+        return datetime.strptime(date_str.strip(), "%d.%m.%Y").date()
+    except:
+        return None
 
 
 if __name__ == "__main__":
